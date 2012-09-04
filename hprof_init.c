@@ -42,8 +42,6 @@
 
 #include "hprof.h"
 
-#include "java_crw_demo.h"
-
 /*
  * This file contains all the startup logic (Agent_Onload) and
  *   connection to the JVMTI interface.
@@ -1484,9 +1482,6 @@ cbClassFileLoadHook(jvmtiEnv *jvmti_env, JNIEnv* env,
 
             /* Name could be NULL */
             if ( name == NULL ) {
-                classname = ((JavaCrwDemoClassname)
-                             (gdata->java_crw_demo_classname_function))
-                    (class_data, class_data_len, &my_crw_fatal_error_handler);
                 if ( classname == NULL ) {
                     HPROF_ERROR(JNI_TRUE, "No classname in classfile");
                 }
@@ -1540,28 +1535,6 @@ cbClassFileLoadHook(jvmtiEnv *jvmti_env, JNIEnv* env,
 
                 new_image = NULL;
                 new_length = 0;
-
-                /* Call the class file reader/write demo code */
-                ((JavaCrwDemo)(gdata->java_crw_demo_function))(
-                    cnum,
-                    classname,
-                    class_data,
-                    class_data_len,
-                    system_class,
-                    TRACKER_CLASS_NAME,
-                    TRACKER_CLASS_SIG,
-                    (gdata->cpu_timing)?TRACKER_CALL_NAME:NULL,
-                    (gdata->cpu_timing)?TRACKER_CALL_SIG:NULL,
-                    (gdata->cpu_timing)?TRACKER_RETURN_NAME:NULL,
-                    (gdata->cpu_timing)?TRACKER_RETURN_SIG:NULL,
-                    (gdata->obj_watch)?TRACKER_OBJECT_INIT_NAME:NULL,
-                    (gdata->obj_watch)?TRACKER_OBJECT_INIT_SIG:NULL,
-                    (gdata->obj_watch)?TRACKER_NEWARRAY_NAME:NULL,
-                    (gdata->obj_watch)?TRACKER_NEWARRAY_SIG:NULL,
-                    &new_image,
-                    &new_length,
-                    &my_crw_fatal_error_handler,
-                    &class_set_methods);
 
                 if ( new_length > 0 ) {
                     unsigned char *jvmti_space;
@@ -2037,27 +2010,6 @@ Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
      *    placed in the various heap dump segments in micro seconds.
      */
     gdata->micro_sec_ticks = md_get_microsecs();
-
-    /* Load java_crw_demo library and find function "java_crw_demo" */
-    if ( gdata->bci ) {
-
-        /* Load the library or get the handle to it */
-        gdata->java_crw_demo_library = load_library("java_crw_demo");
-
-        { /* "java_crw_demo" */
-            static char *symbols[]  = JAVA_CRW_DEMO_SYMBOLS;
-            gdata->java_crw_demo_function =
-                   lookup_library_symbol(gdata->java_crw_demo_library,
-                              symbols, (int)(sizeof(symbols)/sizeof(char*)));
-        }
-        { /* "java_crw_demo_classname" */
-            static char *symbols[] = JAVA_CRW_DEMO_CLASSNAME_SYMBOLS;
-            gdata->java_crw_demo_classname_function =
-                   lookup_library_symbol(gdata->java_crw_demo_library,
-                              symbols, (int)(sizeof(symbols)/sizeof(char*)));
-        }
-    }
-
     return JNI_OK;
 }
 
