@@ -62,8 +62,9 @@
 #include <time.h>
 
 #include "jni.h"
-#include "jvm_md.h"
 #include "hprof.h"
+
+#define JNI_LIB_SUFFIX ".so"
 
 int
 md_getpid(void)
