@@ -90,10 +90,6 @@ typedef unsigned SerialNumber;
 #define XRUN                    "-Xrun" AGENTNAME
 #define AGENTLIB                "-agentlib:" AGENTNAME
 
-/* Name of prelude file, found at runtime relative to java binary location */
-
-#define PRELUDE_FILE            "jvm.hprof.txt"
-
 /* File I/O buffer size to be used with any file i/o operation */
 
 #define FILE_IO_BUFFER_SIZE     (1024*64)

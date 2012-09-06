@@ -274,53 +274,6 @@ md_get_thread_cpu_timemillis(void)
 #endif
 }
 
-void
-md_get_prelude_path(char *path, int path_len, char *filename)
-{
-    void *addr;
-    char libdir[FILENAME_MAX+1];
-    Dl_info dlinfo;
-
-    libdir[0] = 0;
-#if defined(LINUX) || defined(_ALLBSD_SOURCE)
-    addr = (void*)&Agent_OnLoad;
-#else
-    /* Just using &Agent_OnLoad will get the first external symbol with
-     *   this name in the first .so, which may not be libhprof.so.
-     *   On Solaris we can actually ask for the address of our Agent_OnLoad.
-     */
-    addr = dlsym(RTLD_SELF, "Agent_OnLoad");
-    /* Just in case the above didn't work (missing linker patch?). */
-    if ( addr == NULL ) {
-        addr = (void*)&Agent_OnLoad;
-    }
-#endif
-
-    /* Use dladdr() to get the full path to libhprof.so, which we use to find
-     *  the prelude file.
-     */
-    dlinfo.dli_fname = NULL;
-    (void)dladdr(addr, &dlinfo);
-    if ( dlinfo.dli_fname != NULL ) {
-        char * lastSlash;
-
-        /* Full path to library name, need to move up one directory to 'lib' */
-        (void)strcpy(libdir, (char *)dlinfo.dli_fname);
-        lastSlash = strrchr(libdir, '/');
-        if ( lastSlash != NULL ) {
-            *lastSlash = '\0';
-        }
-#ifndef __APPLE__
-        // not sure why other platforms have to go up two levels, but on macos we only need up one
-        lastSlash = strrchr(libdir, '/');
-        if ( lastSlash != NULL ) {
-            *lastSlash = '\0';
-        }
-#endif /* __APPLE__ */
-    }
-    (void)snprintf(path, path_len, "%s/%s", libdir, filename);
-}
-
 
 int
 md_vsnprintf(char *s, int n, const char *format, va_list ap)

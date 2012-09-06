@@ -59,7 +59,6 @@ int     md_read(int filedes, void *buf, int nbyte);
 jlong   md_get_microsecs(void);
 jlong   md_get_timemillis(void);
 jlong   md_get_thread_cpu_timemillis(void);
-void    md_get_prelude_path(char *path, int path_len, char *filename);
 int     md_snprintf(char *s, int n, const char *format, ...);
 int     md_vsnprintf(char *s, int n, const char *format, va_list ap);
 void    md_system_error(char *buf, int len);
